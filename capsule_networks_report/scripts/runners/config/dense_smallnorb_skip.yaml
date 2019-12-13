@@ -1,0 +1,27 @@
+data_provider_name: smallnorb
+batch_size: 50
+epochs: 2
+early_stop_after_n_epochs: 10
+layers:
+- type: dense
+  units: 50
+  activation: leaky_relu
+- type: dense
+  units: 50
+  activation: leaky_relu
+  id: layer2
+- type: dense
+  units: 50
+  activation: leaky_relu
+- type: skip_connection
+  other_input_id: layer2
+  combination_method: add_n
+- type: softmax_pred
+  num_classes: 10
+  id: softmax
+- type: argmax
+  id: prediction
+loss:
+  type: softmax_crossentropy
+  softmax_id: softmax
+prediction_id: prediction

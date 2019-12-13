@@ -1,0 +1,72 @@
+data_provider_name: smallnorb
+batch_size: 50
+epochs: 100
+early_stop_after_n_epochs: 10
+optimizer_kwargs:
+  learning_rate: 0.0005
+layers:
+- type: conv
+  filter_count: 175  #256
+  kernel_length: 5
+  strides: 1
+  activation: relu
+  assert_output_shape: [44, 44, 175]
+- type: batch_norm
+- type: dropout
+  rate: 0.5
+  assert_output_shape: [44, 44, 175]
+- type: conv
+  filter_count: 175  #256
+  kernel_length: 5
+  strides: 1
+  activation: relu
+  assert_output_shape: [40, 40, 175]
+- type: batch_norm
+- type: dropout
+  rate: 0.5
+  assert_output_shape: [40, 40, 175]
+- type: max_pool
+  pool_size: [2, 2]
+  strides: 2
+  assert_output_shape: [20, 20, 175]
+- type: conv
+  filter_count: 350  #512
+  kernel_length: 5
+  strides: 1
+  activation: relu
+  assert_output_shape: [16, 16, 350]
+- type: batch_norm
+- type: conv
+  filter_count: 350  #512
+  kernel_length: 5
+  strides: 1
+  activation: relu
+  assert_output_shape: [12, 12, 350]
+- type: batch_norm
+- type: max_pool
+  pool_size: [2, 2]
+  strides: 2
+  assert_output_shape: [6, 6, 350]
+- type: reshape
+  shape: [50, 12600]
+- type: dense
+  units: 450   # 700
+  activation: relu
+  assert_output_shape: [450]
+- type: dense
+  units: 900   # 1400
+  activation: relu
+  assert_output_shape: [900]
+- type: dense
+  units: 2304   # 48 * 48
+  activation: sigmoid
+  assert_output_shape: [2304]
+- type: softmax_pred
+  num_classes: 5
+  id: softmax
+- type: argmax
+  id: prediction
+loss:
+  type: softmax_crossentropy
+  softmax_id: softmax
+prediction_id: prediction

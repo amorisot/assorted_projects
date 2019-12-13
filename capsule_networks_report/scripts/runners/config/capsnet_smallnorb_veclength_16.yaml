@@ -1,0 +1,53 @@
+data_provider_name: smallnorb
+batch_size: 50
+epochs: 100
+early_stop_after_n_epochs: 10
+layers:
+- type: conv
+  filter_count: 256
+  kernel_length: 9
+  strides: 1
+  activation: leaky_relu
+  assert_output_shape: [40, 40, 256]
+- type: caps_primary
+  caps_count: 16
+  caps_dim: 16
+  kernel_length: 9
+  strides: 2
+  activation: relu
+  assert_output_shape: [4096, 16]
+- type: caps_out
+  caps_count: 5
+  caps_dim: 16
+  assert_output_shape: [4096, 5, 16, 1]
+- type: caps_routing
+  iterations: 2
+  id: caps_routing_out
+  assert_output_shape: [1, 5, 16, 1]
+- type: caps_pred
+  id: caps_prediction
+  assert_output_shape: []
+- type: caps_masking
+  routing_capsule_input_id: caps_routing_out
+  assert_output_shape: [1, 5, 16, 1]
+- type: reshape
+  shape: [-1, 80]
+- type: dense
+  units: 512
+  activation: relu
+  assert_output_shape: [512]
+- type: dense
+  units: 1024
+  activation: relu
+  assert_output_shape: [1024]
+- type: dense
+  units: 2304   # 48 * 48
+  activation: sigmoid
+  assert_output_shape: [2304]
+  id: decoder_output
+loss:
+  type: caps_net
+  caps_routing_id: caps_routing_out
+  decoder_output_id: decoder_output
+prediction_id: caps_prediction
+

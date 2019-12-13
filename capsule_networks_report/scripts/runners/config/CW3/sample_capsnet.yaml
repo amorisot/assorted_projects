@@ -1,0 +1,43 @@
+data_provider_name: mnist
+batch_size: 50
+epochs: 30
+early_stop_after_n_epochs: 10
+layers:
+- type: conv
+  filter_count: 256
+  kernel_length: 9
+  strides: 1
+  activation: relu
+- type: caps_primary
+  caps_count: 32
+  caps_dim: 8
+  kernel_length: 9
+  strides: 2
+  activation: relu
+- type: caps_out
+  caps_count: 10
+  caps_dim: 16
+- type: caps_routing
+  iterations: 2
+  id: caps_routing_out
+- type: caps_pred
+  id: caps_prediction
+- type: caps_masking
+  routing_capsule_input_id: caps_routing_out
+- type: reshape
+  shape: [-1, 160]   # output_caps_count * output_caps_dim
+- type: dense
+  units: 512
+  activation: relu
+- type: dense
+  units: 1024
+  activation: relu
+- type: dense
+  units: 784   # 28 * 28
+  activation: sigmoid
+  id: decoder_output
+loss:
+  type: caps_net
+  caps_routing_id: caps_routing_out
+  decoder_output_id: decoder_output
+prediction_id: caps_prediction

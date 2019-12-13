@@ -1,0 +1,75 @@
+data_provider_name: mtlsmallnorb
+batch_size: 50
+epochs: 100
+early_stop_after_n_epochs: 10
+optimizer_kwargs:
+  learning_rate: 0.0001
+layers:
+- type: conv
+  filter_count: 256
+  kernel_length: 9
+  strides: 1
+  activation: leaky_relu
+  assert_output_shape: [40, 40, 256]
+- type: caps_primary
+  caps_count: 32
+  caps_dim: 8
+  kernel_length: 9
+  strides: 2
+  activation: leaky_relu
+  assert_output_shape: [8192, 8]
+- type: caps_out
+  caps_count: 5
+  caps_dim: 16
+  assert_output_shape: [8192, 5, 16, 1]
+- type: caps_routing
+  iterations: 2
+  id: caps_routing_out
+  assert_output_shape: [1, 5, 16, 1]
+- type: caps_pred
+  id: caps_prediction
+  assert_output_shape: []
+- type: caps_masking
+  routing_capsule_input_id: caps_routing_out
+  assert_output_shape: [1, 5, 16, 1]
+  id: mask
+
+# begin decoder
+- type: reshape
+  shape: [-1, 80]
+- type: dense
+  units: 512
+  activation: leaky_relu
+  assert_output_shape: [512]
+- type: dense
+  units: 1024
+  activation: leaky_relu
+  assert_output_shape: [1024]
+- type: dense
+  units: 2304   # 48 * 48
+  activation: sigmoid
+  assert_output_shape: [2304]
+  id: decoder_output
+
+# begin azimith decoder
+- type: reshape
+  input_id: mask
+  shape: [-1, 80]
+- type: dense
+  units: 512
+  activation: leaky_relu
+- type: dense
+  units: 1
+  activation: leaky_relu
+  id: azimith_output
+
+loss:
+  type: mtl_caps_net
+  caps_routing_id: caps_routing_out
+  decoder_output_id: decoder_output
+  azimith_output_id: azimith_output
+  azimith_func: sin_squared
+  alpha: 0.0005
+  azimith_weight: 0.01
+prediction_id: caps_prediction
+

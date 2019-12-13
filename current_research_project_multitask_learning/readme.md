@@ -1,0 +1,1 @@
+This is what I'm currently working on. There appears to be an improvement in performance (and a reduction in overfitting) when a classifier is forced to use its weights to also act as an autoencoder. Which is quite interesting! So now I'm going to add more tasks to the classifier and see if this trend continues. 

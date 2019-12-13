@@ -1,0 +1,53 @@
+data_provider_name: cifar10
+batch_size: 50
+epochs: 100
+early_stop_after_n_epochs: 10
+optimizer_kwargs:
+  learning_rate: 0.0003
+layers:
+- type: conv
+  filter_count: 32  #256
+  kernel_length: 9
+  strides: 1
+  activation: relu
+  assert_output_shape: [24, 24, 32]
+- type: max_pool
+  pool_size: [2, 2]
+  strides: 2
+  assert_output_shape: [12, 12, 32]
+- type: batch_norm
+- type: conv
+  filter_count: 64  #256
+  kernel_length: 3
+  strides: 1
+  activation: relu
+  assert_output_shape: [10, 10, 64]
+- type: batch_norm
+- type: max_pool
+  pool_size: [2, 2]
+  strides: 2
+  assert_output_shape: [5, 5, 64]
+- type: batch_norm
+- type: reshape
+  shape: [50, 1600]
+- type: dense
+  units: 50   # 700
+  activation: relu
+  assert_output_shape: [50]
+- type: dense
+  units: 100   # 1400
+  activation: relu
+  assert_output_shape: [100]
+- type: dense
+  units: 200   # 32*32
+  activation: sigmoid
+  assert_output_shape: [200]
+- type: softmax_pred
+  num_classes: 10
+  id: softmax
+- type: argmax
+  id: prediction
+loss:
+  type: softmax_crossentropy
+  softmax_id: softmax
+prediction_id: prediction

@@ -1,0 +1,5 @@
+This was an experiment I ran to try and reproduce a really remarkable 2015 result by Ian Goodfellow, in https://arxiv.org/abs/1412.6544.
+
+The main experiment was: save the random parameters you initialise your model with, before training. Call them theta1. Then train your model, and save the trained model's parameters. Call them theta2. Then, linearly interpolating between the two points in weight space, by making alpha vary from 0 to 1 in the equation theta = alpha x theta2 + (1-alpha) x theta1, will lead to the model's loss at theta going down smoothly as alpha increases. Which is wild! 
+
+Unfortunately, when I reran his experiment, I found that his result was only true for an extremely narrow subset of datasets and network architectures. It is true for a multilayer perceptron network trained on MNIST, but not for more complicated architectures, like VGG or Resnet. There, instead, the loss remains flat for a long time, until finally as you get close enough to the trained parameters theta2, the loss goes down sharply.

@@ -1,0 +1,41 @@
+data_provider_name: cifar10
+batch_size: 50
+epochs: 2
+early_stop_after_n_epochs: 10
+layers:
+- type: conv
+  filter_count: 10
+  kernel_length: 3
+  strides: 2
+- type: max_pool
+  pool_size: [2, 2]
+  strides: 2
+- type: dropout
+  rate: 0.4
+- type: conv
+  filter_count: 10
+  kernel_length: 3
+  strides: 2
+  activation: leaky_relu
+- type: max_pool
+  pool_size: [2, 2]
+  strides: 4
+- type: dropout
+  rate: 0.4
+- type: reshape
+  shape: [-1, 10]
+- type: dense
+  units: 50
+  activation: leaky_relu
+- type: dense
+  units: 50
+  activation: leaky_relu
+- type: softmax_pred
+  num_classes: 10
+  id: softmax
+- type: argmax
+  id: prediction
+loss:
+  type: softmax_crossentropy
+  softmax_id: softmax
+prediction_id: prediction

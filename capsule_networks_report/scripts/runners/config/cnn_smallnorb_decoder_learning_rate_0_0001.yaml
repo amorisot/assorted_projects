@@ -1,0 +1,88 @@
+data_provider_name: smallnorb
+batch_size: 50
+epochs: 100
+early_stop_after_n_epochs: 10
+optimizer_kwargs:
+  learning_rate: 0.0001
+layers:
+- type: conv
+  filter_count: 128  #256
+  kernel_length: 5
+  strides: 1
+  activation: leaky_relu
+- type: batch_norm
+- type: dropout
+  rate: 0.5
+- type: conv
+  filter_count: 128  #256
+  kernel_length: 5
+  strides: 1
+  activation: leaky_relu
+- type: batch_norm
+- type: dropout
+  rate: 0.5
+- type: max_pool
+  pool_size: [2, 2]
+  strides: 2
+- type: conv
+  filter_count: 350  #512
+  kernel_length: 5
+  strides: 1
+  activation: leaky_relu
+  assert_output_shape: [16, 16, 350]
+- type: batch_norm
+- type: conv
+  filter_count: 350  #512
+  kernel_length: 5
+  strides: 1
+  activation: leaky_relu
+  assert_output_shape: [12, 12, 350]
+- type: batch_norm
+- type: max_pool
+  pool_size: [2, 2]
+  strides: 2
+  assert_output_shape: [6, 6, 350]
+- type: reshape
+  shape: [50, 12600]
+- type: dense
+  units: 450   # 700
+  activation: leaky_relu
+  assert_output_shape: [450]
+- type: dense
+  units: 900   # 1400
+  activation: leaky_relu
+  assert_output_shape: [900]
+- type: dense
+  units: 16   # 48 * 48
+  activation: sigmoid
+  assert_output_shape: [16]
+  id: narrow_layer
+- type: softmax_pred
+  num_classes: 5
+  id: softmax
+- type: argmax
+  id: prediction
+
+- input_id: narrow_layer
+  type: reshape
+  shape: [-1, 16]
+- type: dense
+  units: 512
+  activation: leaky_relu
+  assert_output_shape: [512]
+- type: dense
+  units: 1024
+  activation: leaky_relu
+  assert_output_shape: [1024]
+- type: dense
+  units: 2304   # 48 * 48
+  activation: sigmoid
+  assert_output_shape: [2304]
+  id: decoder_output
+
+loss:
+  type: reconstruction
+  decoder_output_id: decoder_output
+  softmax_output_id: softmax
+  reconstruction_weight: 0.01
+prediction_id: prediction
